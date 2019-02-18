@@ -1,0 +1,229 @@
+
+#select ARCH to make arm-linux or x86
+#export ARCH = arm-linux-gnueabi-
+export ARCH = x64
+export BLDCFG = debug
+
+export TOP := $(shell pwd)
+export PREFIX := $(TOP)/prefix
+
+export INSTALL := /usr/bin/install -p
+
+export PATH := /usr/local/arm/3.4.1/bin/:$(PATH)
+
+export CFLAGS = -D_GNU_SOURCE
+CXXFLAGS= -DUNIX -DLINUX -Dlinux -Wall
+SHARED = -shared
+
+ifeq ($(BLDCFG), debug)
+CXXFLAGS += -g
+CFGTAG=d
+else
+CXXFLAGS += -O2
+CFGTAG=r
+endif
+
+
+ifeq ($(ARCH), x86)
+
+CXX = g++
+CC = gcc
+LD = ld
+AR = ar
+
+export LIBTAG = x86.$(CFGTAG)
+export SOTAG = x86.$(CFGTAG)
+
+# use $$3 for shell var
+CXXVERSION = $(shell gcc --version | grep GCC | awk '{print $$3}' | awk '{print substr($$0,1,3)}')
+ifeq ($(CXXVERSION), 4.4)
+CXXFLAGS += -std=c++0x
+else
+CXXFLAGS += -std=c++17 -DSUPPORT_CXX17
+endif
+
+CXXFLAGS += -DLINUX_x86
+export OUTDIR=linux
+
+STATIC = -static
+
+endif
+
+ifeq ($(ARCH), x64)
+
+CXX = g++
+CC = gcc
+LD = ld
+AR = ar
+
+export LIBTAG = x64$(PICTAG).$(CFGTAG)
+export SOTAG = x64.$(CFGTAG)
+
+# use $$3 for shell var
+CXXVERSION = $(shell gcc --version | grep GCC | awk '{print $$3}' | awk '{print substr($$0,1,3)}')
+ifeq ($(CXXVERSION), 4.4)
+CXXFLAGS += -std=c++0x
+else
+CXXFLAGS += -std=c++17 -DSUPPORT_CXX17
+endif
+
+CXXFLAGS += -DLINUX64 -DLINUX_x86 -Wno-unused-variable -Wno-unused-but-set-variable
+export OUTDIR=linux64
+
+ifneq ($(PICTAG), )
+CXXFLAGS += -fPIC
+endif
+
+STATIC = -static
+
+endif
+
+ifeq ($(ARCH),arm-linux)
+
+CROSS=arm-linux-
+
+export LIBTAG = arm-linux.$(CFGTAG)
+
+CROSS_COMPILE   = $(CROSS)
+AS              = $(CROSS)as
+LD              = $(CROSS)ld
+CC              = $(CROSS)gcc
+CXX             = $(CROSS)g++
+CPP             = $(CC) -E
+AR              = $(CROSS)ar
+NM              = $(CROSS)nm
+OBJCOPY         = $(CROSS)objcopy
+OBJDUMP         = $(CROSS)objdump
+RANLIB          = $(CROSS)ranlib
+STRIP   = $(CROSS)strip
+
+export CROSS CROSS_COMPILE AS LD CC CXX CPP AR NM OBJCOPY OBJDUMP RANLIB STRIP
+
+
+CXXFLAGS += -Dsam6410   -mstructure-size-boundary=8
+CCFLAGS += -Dsam6410   -mstructure-size-boundary=8
+
+export OUTDIR=arm
+
+endif
+
+ifeq ($(ARCH),arm-hismall-linux)
+
+CROSS=arm-hismall-linux-
+
+export LIBTAG = arm-hismall-linux.$(CFGTAG)
+
+CROSS_COMPILE   = $(CROSS)
+AS              = $(CROSS)as
+LD              = $(CROSS)ld
+CC              = $(CROSS)gcc
+CXX             = $(CROSS)g++
+CPP             = $(CC) -E
+AR              = $(CROSS)ar
+NM              = $(CROSS)nm
+OBJCOPY         = $(CROSS)objcopy
+OBJDUMP         = $(CROSS)objdump
+RANLIB          = $(CROSS)ranlib
+STRIP   = $(CROSS)strip
+
+export CROSS CROSS_COMPILE AS LD CC CXX CPP AR NM OBJCOPY OBJDUMP RANLIB STRIP
+
+
+CXXFLAGS += -Dhi3515   -mstructure-size-boundary=8
+CCFLAGS += -Dhi3515   -mstructure-size-boundary=8
+
+
+export OUTDIR=arm-hismall
+
+endif
+
+ifeq ($(ARCH),arm-hi3520d-linux)
+
+CROSS=arm-hisiv100nptl-linux-
+
+export LIBTAG = arm-hi3520d-linux.$(CFGTAG)
+
+CROSS_COMPILE   = $(CROSS)
+AS              = $(CROSS)as
+LD              = $(CROSS)ld
+CC              = $(CROSS)gcc
+CXX             = $(CROSS)g++
+CPP             = $(CC) -E
+AR              = $(CROSS)ar
+NM              = $(CROSS)nm
+OBJCOPY         = $(CROSS)objcopy
+OBJDUMP         = $(CROSS)objdump
+RANLIB          = $(CROSS)ranlib
+STRIP   = $(CROSS)strip
+
+export CROSS CROSS_COMPILE AS LD CC CXX CPP AR NM OBJCOPY OBJDUMP RANLIB STRIP
+
+
+CXXFLAGS += -Dhi3515 -mstructure-size-boundary=8
+CCFLAGS += -Dhi3515 -mstructure-size-boundary=8
+
+export OUTDIR=arm-hi3520d-linux
+
+endif
+
+
+ifeq ($(ARCH),arm-hi3536-linux)
+
+CROSS=arm-hisiv300-linux-
+
+export LIBTAG = arm-hi3536-linux.$(CFGTAG)
+
+CROSS_COMPILE   = $(CROSS)
+AS              = $(CROSS)as
+LD              = $(CROSS)ld
+CC              = $(CROSS)gcc
+CXX             = $(CROSS)g++
+CPP             = $(CC) -E
+AR              = $(CROSS)ar
+NM              = $(CROSS)nm
+OBJCOPY         = $(CROSS)objcopy
+OBJDUMP         = $(CROSS)objdump
+RANLIB          = $(CROSS)ranlib
+STRIP   = $(CROSS)strip
+
+export CROSS CROSS_COMPILE AS LD CC CXX CPP AR NM OBJCOPY OBJDUMP RANLIB STRIP
+
+CXXFLAGS += -Dhi3536  -mstructure-size-boundary=8 -march=armv7-a -mfloat-abi=softfp -mfpu=vfpv4 -mno-unaligned-access -fno-aggressive-loop-optimizations
+CCFLAGS += -Dhi3536  -mstructure-size-boundary=8 -march=armv7-a -mfloat-abi=softfp -mfpu=vfpv4 -mno-unaligned-access -fno-aggressive-loop-optimizations
+export OUTDIR=arm-hi3536-linux
+
+endif
+
+
+
+
+
+ifeq ($(ARCH),arm-imx6ull-linux)
+
+CROSS=arm-linux-gnueabihf-
+
+export LIBTAG = arm-imx6ull-linux.$(CFGTAG)
+
+CROSS_COMPILE   = $(CROSS)
+AS              = $(CROSS)as
+LD              = $(CROSS)ld
+CC              = $(CROSS)gcc
+CXX             = $(CROSS)g++
+CPP             = $(CC) -E
+AR              = $(CROSS)ar
+NM              = $(CROSS)nm
+OBJCOPY         = $(CROSS)objcopy
+OBJDUMP         = $(CROSS)objdump
+RANLIB          = $(CROSS)ranlib
+STRIP   = $(CROSS)strip
+
+export CROSS CROSS_COMPILE AS LD CC CXX CPP AR NM OBJCOPY OBJDUMP RANLIB STRIP
+
+
+CXXFLAGS += -Dimx6ull -march=armv7-a -mfloat-abi=hard -mfpu=neon -mtune=cortex-a7 
+CCFLAGS += -Dimx6ull -march=armv7-a -mfloat-abi=hard -mfpu=neon -mtune=cortex-a7 
+
+export OUTDIR=arm-imx6ull-linux
+
+endif
+
