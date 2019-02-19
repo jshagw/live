@@ -18,7 +18,7 @@ EnumMediaError OutputMediaFile::open()
 {
 	close();
 
-	const char* format_name = "flv";
+	const char* format_name = OutputType::RTMP == _type ? "flv" : "hls";
 
 	int ret = avformat_alloc_output_context2(&_ctx, nullptr, format_name, _url.c_str());
 	if (ret < 0)
@@ -111,7 +111,21 @@ EnumMediaError OutputMediaFile::open()
 		return EnumMediaError::OPEN_FAILED;
 	}
 
-	ret = avformat_write_header(_ctx, nullptr);
+	AVDictionary *opts = nullptr;
+	if ( OutputType::HLS == _type )
+	{
+		av_dict_set_int(&opts, "hls_time", 5, 0);
+		av_dict_set_int(&opts, "hls_list_size", 2, 0);
+		av_dict_set_int(&opts, "hls_wrap", 5, 0);
+	}
+
+	ret = avformat_write_header(_ctx, &opts);
+
+	if ( nullptr != opts )
+	{
+		av_dict_free(&opts);
+	}
+
 	if (ret < 0)
 	{
 		return EnumMediaError::WRITE_HEADER_FAILED;

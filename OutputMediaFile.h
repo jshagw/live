@@ -30,8 +30,7 @@ protected:
 	MediaFile* _inFile;
 	OutputType _type;
 
-private:
-	
+private:	
 	Vector_OutputStream _streams;
 };
 
